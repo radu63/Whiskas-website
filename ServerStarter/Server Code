@@ -1,9 +1,25 @@
 #include <Arduino.h>
+//Dazey!!
 #define dazeyleftWheel 0b00100001
 #define dazeyrightWheel 0b00100010
 #define dazeyGripper 0b00100011
 #define dazeyLine 0b00100100
-#define POSfin 0b10001111
+#define dazeySonar 0b00100101
+#define dazeyFin 0b00101111
+//P.O.S.
+#define POSleftWheel 0b10000001
+#define POSrightWheel 0b10000010
+#define POSGripper 0b10000011
+#define POSLine 0b10000100
+#define POSSonar 0b10000101
+#define POSFin 0b10001111
+//Wall-E
+#define WallEleftWheel 0b01000001
+#define WallErightWheel 0b01000010
+#define WallEGripper 0b01000011
+#define WallELine 0b01000100
+#define WallESonar 0b01000101
+#define WallEFin 0b01001111
 
 byte incomingByte[2];
 char goCommand;
@@ -47,7 +63,7 @@ void loop() {
         Serial.println("tempered");
       }
     }
-    if (incomingByte[1] == POSfin){
+    if (incomingByte[1] == POSFin){
       Serial.println("Done!");
     }
   }
@@ -71,7 +87,7 @@ void loop() {
       }
     }
     else{
-      
+
     }
   }
 }
