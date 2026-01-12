@@ -1,0 +1,81 @@
+#include <Arduino.h>
+#define dazeyleftWheel 0b00100001
+#define dazeyrightWheel 0b00100010
+#define dazeyGripper 0b00100011
+#define dazeyLine 0b00100100
+#define POSfin 0b10001111
+
+byte incomingByte[2];
+char goCommand;
+long timer;
+
+void setup() {
+  Serial.begin(9600);
+  Serial1.begin(9600);
+}
+
+void loop() {
+  bool start = false;
+  while (Serial1.available() >= 2) {
+    Serial1.readBytes(incomingByte, 2);
+    if(incomingByte[1] <= 36 && incomingByte[1] >= 33){
+      if (incomingByte[1] == dazeyleftWheel)
+      {
+        Serial.print("Dazey Left Wheel");
+        Serial.println(incomingByte[2], DEC);
+      }
+      else if (incomingByte[1] == dazeyrightWheel)
+      {
+        Serial.print("Dazey right Wheel");
+        Serial.println(incomingByte[2], DEC);
+      }
+      else if (incomingByte[1] == dazeyGripper)
+      {
+        Serial.print("Dazey gripper");
+        Serial.println(incomingByte[2], DEC);
+      }
+      else if (incomingByte[1] == dazeyLine)
+      {
+        Serial.print("Dazey line");
+        Serial.println(incomingByte[2], DEC);
+      }
+      else{
+        Serial.print("FUCK");
+        Serial.println(incomingByte[1]);
+        Serial.print("AAAAAA");
+        Serial.println(incomingByte[2]);
+        Serial.println("tempered");
+      }
+    }
+    if (incomingByte[1] == POSfin){
+      Serial.println("Done!");
+    }
+  }
+  while (Serial.available()) {
+    goCommand = Serial.read();
+    if(goCommand == 'S' || goCommand == 's' || goCommand == 's\n'){
+      Serial1.write(255);
+      while(start == false){
+        if (millis() <= timer + 1000 && start == false)
+        {
+          Serial1.write(255);
+          Serial.println("I've done something");
+        }
+        while(Serial1.available()){
+          Serial1.readBytes(incomingByte, 2);
+          if(incomingByte[1] == 0b11101110){
+            Serial.println("Started");
+            start = true;
+          }
+        }
+      }
+    }
+    else{
+      
+    }
+  }
+}
+
+void howLong(void){
+  timer = millis();
+} 
