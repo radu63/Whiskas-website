@@ -109,7 +109,7 @@ threading.Thread(target=update_loop, daemon=True).start()
 # --- Flask routes ---
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return "Dashboard backend is running"
 
 @app.route("/status")
 def status():
