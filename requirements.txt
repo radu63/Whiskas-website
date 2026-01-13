@@ -1,5 +1,4 @@
 gunicorn
 flask
-threading
 time
 serial
