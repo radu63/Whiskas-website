@@ -4,7 +4,7 @@ import os
 
 app = Flask(__name__)
 
-# --- Robot state (Identical to your original) ---
+# The data is now stored here in the cloud
 bot_state = {
     "POS":     {"left_wheel": None, "right_wheel": None, "distance": None, "gripper": None, "time": None},
     "Wall-E": {"left_wheel": None, "right_wheel": None, "distance": None, "gripper": None, "time": None},
@@ -13,34 +13,24 @@ bot_state = {
 
 @app.route("/")
 def index():
-    return "Dashboard backend is running"
+    return "Robot Dashboard is Live"
 
 @app.route("/status")
 def status():
-    return jsonify({
-        "connected": True, 
-        "robots": bot_state
-    })
+    return jsonify({"robots": bot_state})
 
-# --- This receives the data from your local computer ---
 @app.route("/update", methods=["POST"])
-def update_data():
-    global bot_state
+def update():
     data = request.json
-    bot_name = data.get("bot_name")
+    bot = data.get("bot")
     key = data.get("key")
-    value = data.get("value")
-    
-    if bot_name in bot_state:
-        if key == "done":
-            print(f"{bot_name} is done!")
-        else:
-            bot_state[bot_name][key] = value
-        bot_state[bot_name]["time"] = time.strftime("%H:%M:%S")
-        return "OK", 200
-    return "Error", 400
+    val = data.get("val")
+    if bot in bot_state:
+        bot_state[bot][key] = val
+        bot_state[bot]["time"] = time.strftime("%H:%M:%S")
+    return "OK", 200
 
 if __name__ == "__main__":
-    # Render uses the PORT environment variable
-    port = int(os.environ.get("PORT", 8000))
+    # Render requires binding to 0.0.0.0 and the PORT env variable
+    port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
