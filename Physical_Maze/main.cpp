@@ -12,9 +12,12 @@
 #define dazeyrightWheel 0b00100010
 #define dazeyGripper 0b00100011
 #define dazeyLine 0b00100100
+#define dazeySonar 0b00100101
 
 //
 void DanyloDone(void);
+void gripper_Close(void);
+void Override(void);
 //Motor Number, Speed is a percentage between 0 and 1, forward yes no
 void motorSpeedAdjuster (int, float, bool);
 //stop
@@ -29,6 +32,7 @@ void distanceRead(void);
 //timer
 void howLong(void);
 void howLong2(void);
+void howLong3(void);
 //line
 int readLine(void);
 void handleLine(int);
@@ -40,8 +44,9 @@ const int motorSpeedReverse1 = 9;
 const int motorSpeedReverse2 = 5;
 const int motor1 = 9;
 const int motor2 = 5;
-long timer;
-long timer2;
+unsigned long timer;
+unsigned long timer2;
+unsigned long timer3;
 
 int distance = 0;
 
@@ -54,34 +59,34 @@ int sensorValues[sensorCount];
 
 const int BLACK = 900;
 // timings (ms)
-unsigned long startBlindMs        = 600;
+unsigned long startBlindMs        = 1000;
 unsigned long grabHoldMs          = 350;
-unsigned long turnLeftMs          = 37;
-unsigned long afterTurnForwardMs  = 200;
 
 //MAZE STUFF
 bool Object = false;
 //North East South West start?
 void protomaze(void);
 // Maze[leftCell][forwardCell][direction]
-int Maze[7][7][4]{
-  {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
-  {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
-  {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
-  {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
-  {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
-  {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
-  {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
-};
-//Is it trapped cause it missed a T?
-bool motherHelp = false;
+// int Maze[7][7][4]{
+//   {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+//   {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+//   {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+//   {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+//   {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+//   {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+//   {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+// };
+// //Is it trapped cause it missed a T?
+// bool motherHelp = false;
 //direction 0 - N 1 - E 2 - S 3 - W
 int direction = 1;
-int forwardCell = 6;
-int leftCell = 5;
+int TempDir = 0;
+// int forwardCell = 6;
+// int leftCell = 5;
 //COMMS
 void iHaveAMouthandIMustScream(void);
 bool iGo = false;
+bool iGoon = false;
 /*
 2 bytes, 1 header - what the data is about
 1 trailer - raw data - number
@@ -111,7 +116,10 @@ ack
 */
 
 void setup() {
-Serial.begin(9600);
+  Serial.begin(9600);
+
+  attachInterrupt(digitalPinToInterrupt(3), Override, RISING);
+
   pinMode(motorSpeed1, OUTPUT);
   pinMode(motorSpeedReverse1, OUTPUT);
   pinMode(motorSpeed2, OUTPUT);
@@ -129,6 +137,8 @@ Serial.begin(9600);
 
   howLong();
   howLong2();
+  howLong3();
+
 }
 
 void DanyloDone(void){
@@ -143,92 +153,115 @@ void DanyloDone(void){
 
 //37 ms + 20ms stop for a perfect 90
 void loop() {
-  while(iGo != false){
-    DanyloDone();
-  }
-  forward();
-  howLong();
-  if(millis() >= timer + startBlindMs){
+  if(!iGoon){
+    //HOLD STILL but only once
+    while(!iGo){
+      DanyloDone();
+    }
+    forward();
+    howLong();
+    while(millis() <= timer + startBlindMs){}
     stop();
+    howLong();
+    while(millis() <= timer + grabHoldMs){
+      gripper_Close();
+    }
+    left();
+    delay(425);
+    stop();
+    delay(20);
+    forward();
+    howLong();
+    while(millis() <= timer + 300){}
+    while(readLine() != LINE_END && readLine() != LINE_NONE){
+      handleLine(readLine());
+    }
+    iGoon = true;
   }
-  howLong();
-  if(millis() >= timer + grabHoldMs){
-    digitalWrite(gripper, HIGH);
-    delay(1.5);
-    digitalWrite(gripper, LOW);
+  
+  else{
+    if(readLine() != LINE_END && readLine() != LINE_NONE){
+      handleLine(readLine());
+    }
+    else{
+      protomaze();
+    }
+    //COMMS
+    if (millis() >= timer2 + 500){
+      distanceRead();
+      iHaveAMouthandIMustScream();
+      gripper_Close();
+        howLong2();
+    }
+    ///////
   }
-  left();
-  delay(37);
-  stop();
-  forward();
-  howLong();
-  while(millis() <= timer + 300){}
-  while (readLine() != LINE_END)
-  {
+  
+}
+//863 is 30 cm
+void protomaze(void){
+  if(readLine() != LINE_END && readLine() != LINE_NONE){
     handleLine(readLine());
   }
-  protomaze();
   
 
-
-  // mazercise();
-  // if (millis() >= timer2 + 500){
-  // iHaveAMouthandIMustScream();
-  //   howLong2();
-  // }
-}
-
-void protomaze(void){
-  forward();
-  delay(1200);
-  stop();
-  delay(20);
-  right();
-  delay(37);
-  distanceRead();
-  if(distance < 30){
-    right();
-    delay(37 * 2);
-  }
-  distanceRead();
-  if(distance < 30){
-    left();
-    delay(37);
-  }
-  protomaze();
-}
-
-
-void mazercise(void){
-  if (millis() >= timer + 500){
-    distanceRead();
-    howLong();
-  }
-  if(distance == 0 || distance > 15){
-    howLong();
+  if (distance == 0 || distance > 15){
     forward();
-    while(millis() <= timer + 300){}
+    howLong();
+    while(millis() < timer + 863){}
+    TempDir = direction;
   }
-  
-  else if(distance <= 15){
-    stop();
-    if(Maze[leftCell][forwardCell][direction] == 1){
-      stop();
-      while(1==1){
-        digitalWrite(gripper, HIGH);
-        delay(1);
-        digitalWrite(gripper, LOW);
-      }
-    } 
-    else{
-      Maze[leftCell][forwardCell][direction] = 1;
-      howLong();
-      right();
-      while(millis() <= timer + 300){}
-      mazercise();
+  else if(distance < 15 && direction == TempDir){
+    right();
+    delay(425 * 2 + 20);
+  }
+  else if(distance < 15 && direction != ((TempDir - 2 < 0) ? TempDir - 2 : TempDir + 1)){
+    left();
+    delay(425);
+  }
+  else{
+    left();
+    delay(425 * 2 + 20);
+  }
+  stop();
+  howLong();
+  while(millis() < timer + 350){
+    if(readLine() != LINE_END && readLine() != LINE_NONE){
+      handleLine(readLine());
     }
   }
 }
+
+
+// void mazercise(void){
+//   if (millis() >= timer + 500){
+//     distanceRead();
+//     howLong();
+//   }
+//   if(distance == 0 || distance > 15){
+//     howLong();
+//     forward();
+//     while(millis() <= timer + 300){}
+//   }
+  
+//   else if(distance <= 15){
+//     stop();
+//     if(Maze[leftCell][forwardCell][direction] == 1){
+//       stop();
+//       while(1==1){
+//         digitalWrite(gripper, HIGH);
+//         delay(1);
+//         digitalWrite(gripper, LOW);
+//       }
+//     } 
+//     else{
+//       Maze[leftCell][forwardCell][direction] = 1;
+//       howLong();
+//       right();
+//       while(millis() <= timer + 300){}
+//       mazercise();
+//     }
+//   }
+// }
 
 void distanceRead(void){
   digitalWrite(trigger, HIGH);
@@ -245,6 +278,7 @@ void stop (void){
   analogWrite(motorSpeedReverse1, 0);
   analogWrite(motorSpeed2, 0);
   analogWrite(motorSpeedReverse2, 0);
+  
 }
 
 //Left
@@ -254,6 +288,7 @@ void left(void){
   direction--;
   if(direction < 0)
     direction = 3;
+  
 }
 
 //right
@@ -263,24 +298,26 @@ void right(void){
   direction++;
   if(direction > 3)
     direction = 0;
+  
 }
 
 //forward
 void forward(void){
   motorSpeedAdjuster(motor1, .95, true);
   motorSpeedAdjuster(motor2, 1, true);
-  if(direction == 0){
-    forwardCell--;
-  }
-  else if(direction == 1){
-    leftCell--;
-  }
-  else if(direction == 2){
-    forwardCell++;
-  }
-  else if(direction == 3){
-    leftCell++;
-  }
+  // if(direction == 0){
+  //   forwardCell--;
+  // }
+  // else if(direction == 1){
+  //   leftCell--;
+  // }
+  // else if(direction == 2){
+  //   forwardCell++;
+  // }
+  // else if(direction == 3){
+  //   leftCell++;
+  // }
+  
 }
 
 
@@ -290,7 +327,9 @@ void iHaveAMouthandIMustScream(void){
   Serial.write(dazeyLine);
   Serial.write(readLine());
   Serial.write(dazeyGripper);
-  Serial.write(0b10011001);
+  Serial.write(0b11111111);
+  Serial.write(dazeySonar);
+  Serial.write(distance);
 }
 
 
@@ -324,36 +363,40 @@ void handleLine(int line) {
   if(sensorValues[0] > BLACK && sensorValues[1] > BLACK && sensorValues[2] > BLACK) {
     motorSpeedAdjuster(motor1, .95, true);
     motorSpeedAdjuster(motor2, 1, false);
+    
   }
   else if(sensorValues[5] > BLACK && sensorValues[6] > BLACK && sensorValues[7] > BLACK) {
     motorSpeedAdjuster(motor1, .95, false);
     motorSpeedAdjuster(motor2, 1, true);
+    
   }
 
   if(line == LINE_CENTER){
     motorSpeedAdjuster(motor1, .95, true);
     motorSpeedAdjuster(motor2, 1, true);
+    
   }
   else if (line == LINE_LEFT)
   {
     motorSpeedAdjuster(motor1, .6, false);
     motorSpeedAdjuster(motor2, 1, true);
+    
   }
   else if (line == LINE_RIGHT){
     motorSpeedAdjuster(motor1, .95, true);
     motorSpeedAdjuster(motor2, .6, false);
+    
   }
   else if (line == LINE_T){
     motorSpeedAdjuster(motor1, .95, true);
     motorSpeedAdjuster(motor2, 1, true);
+    
   }
   else if (line == LINE_END){
-    motorSpeedAdjuster(motor1, .95, false);
-    motorSpeedAdjuster(motor2, 1, false);
+    protomaze();
   }
   else if (line == LINE_NONE){
-    motorSpeedAdjuster(motor1, .95, false);
-    motorSpeedAdjuster(motor2, 1, false);
+    protomaze();
   }
 }
 
@@ -367,23 +410,38 @@ void howLong2(void){
   timer2 = millis();
 }
 
+void howLong3(void){
+  timer3 = millis();
+}
+
 
 //individual motor control
 void motorSpeedAdjuster (int Number, float Speed, bool Forward) {
   int AnalogSpeed = 255 * Speed;
   int ServerSpeed = Speed * 100;
   
-  // if(millis() >= timer2 + 250 && Number == 9){
-  //   Serial.write(dazeyleftWheel);
-  //   Serial.write(ServerSpeed);
-  // }
-  // else if(millis() >= timer2 + 250 && Number == 5){
-  //   Serial.write(dazeyrightWheel);
-  //   Serial.write(ServerSpeed);
-  // }
+  if(millis() >= timer3 + 500 && Number == 9){
+    Serial.write(dazeyleftWheel);
+    if(Forward){
+      Serial.write(ServerSpeed);
+    }
+    if(!Forward){
+      Serial.write(ServerSpeed*-1);
+    }
+  }
+  else if(millis() >= timer3 + 500 && Number == 5){
+    Serial.write(dazeyrightWheel);
+    if(Forward){
+      Serial.write(ServerSpeed);
+    }
+    if(!Forward){
+      Serial.write(ServerSpeed*-1);
+    }
+      howLong3();
+  }
 
   if(Speed < .6){
-    for (int sauce = 1; sauce < Speed; sauce -= .1)
+    for (float sauce = 1; sauce != Speed; sauce -= .1)
     {
       AnalogSpeed = 255 * sauce;
       if(Forward){
@@ -409,4 +467,14 @@ void motorSpeedAdjuster (int Number, float Speed, bool Forward) {
     analogWrite(Number + 1, 0);
     analogWrite(Number, AnalogSpeed);
   }
+}
+
+void gripper_Close(void){
+  digitalWrite(gripper, HIGH);
+  delayMicroseconds(1020);
+  digitalWrite(gripper, LOW);
+}
+
+void Override(void){
+  iGo = true;
 }
