@@ -2,7 +2,10 @@ from flask import Flask, render_template, jsonify
 import threading
 import time
 import serial
-
+####################
+import os
+ON_RENDER = os.environ.get("RENDER") == "true"
+####################
 app = Flask(__name__)
 
 # --- CHANGE THIS to your Arduino port ---
@@ -107,10 +110,11 @@ def update_loop():
 threading.Thread(target=update_loop, daemon=True).start()
 
 # --- Flask routes ---
+########################################
 @app.route("/")
 def index():
     return "Dashboard backend is running"
-
+########################################
 @app.route("/status")
 def status():
     return jsonify({
