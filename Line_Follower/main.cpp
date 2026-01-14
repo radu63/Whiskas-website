@@ -6,22 +6,11 @@
 #define POSFin 0b10001111 //adress of the bot to signal finish
 
 
-bool StartAllowed = false; // becomes true when start byte received
+//bool StartAllowed = false; // becomes true when start byte received
 bool raceStarted = false; // becomes true when flag up
 bool checkFlagStart(); //checks flagstate to start
 int flagBaselineCm =-1; // baseline distance for flag detection
 bool finishSent = false; // ensure finish packet sent only once
-
-void checkServerStart(void){ //reads the bytes from serial to start the bot when 255 received
-  while (Serial.available()) { 
-    byte Starter = Serial.read();
-    if (Starter == 255) {
-      StartAllowed = true;
-      Serial.write(0b11101110); 
-      Serial.write(0b11101110); // send confirmation byte 2 times to ensure reception (has to be 2 times)
-    }
-  }
-}
 
 void sendFinishPacketOnce(){ //sends finish packet
   if(finishSent) return;
@@ -29,7 +18,6 @@ void sendFinishPacketOnce(){ //sends finish packet
   Serial.write((uint8_t)POSFin); //send it twice to ensure reception it needs to be read two times
   Serial.write((uint8_t)POSFin);
 }
-
 
 
 // NeoPixels
@@ -48,6 +36,12 @@ uint32_t COL_WHITE;
 // gripper
 const int gripperPin = 12;
 Servo gripper;
+
+// flag detection
+const int FLAG_MIN_CM = 5;
+const int FLAG_MAX_CM = 20;
+
+
 
 // motor pins
 const int motorL_fwd = 3;
@@ -235,7 +229,6 @@ void setLedsForLine(LineState line){ //colors for line states curves
   }
 }
 
-
 //  motors
 
 void motorSpeedAdjuster(int pinFwd, int pinRev, float speed, boolean forward, boolean invertDir){ //converts pwm so the user can use 0.0-1.0 floats
@@ -300,7 +293,6 @@ if(state != RUN_FOLLOW && state != WAIT_FLAG){
   return 999;
 }
 
-
   unsigned long now = millis();
 
   if(now - lastSonarPingMs < SONAR_INTERVAL_MS){ //return distance if sonar interval not reached
@@ -324,21 +316,12 @@ if(state != RUN_FOLLOW && state != WAIT_FLAG){
   return lastDistanceCm;
 }
 
-
 bool checkFlagStart(){
   int d = readDistanceCm();
+  if(d == 999) return false;
 
-  if(d != 999 && d <= obstacleCm){
-    return false;
-  }
-
-  if(d == 999 || d > obstacleCm){
-    return true;
-  }
-
-  return false;
+  return (d >= FLAG_MIN_CM && d <= FLAG_MAX_CM);
 }
-
 
 
 //  line
@@ -517,12 +500,6 @@ void setup(){
 
   stopMotors(); //ensure motors are stopped at the beginning
 
-  while(!StartAllowed){ //hard stop until start byte received
-    checkServerStart();
-    ledsAll(COL_WHITE);
-    delay(200);
-  }
-
   gripperHoldOpen = true; // open gripper at start
   gripper.write(gripOpen);
 
@@ -534,21 +511,21 @@ void setup(){
 
 void loop(){
 
-  checkServerStart(); //waits for start byte
-  if(!StartAllowed){
-    stopMotors();
-    ledsAll(COL_WHITE);
-    return;
-  }
-
 if(state == WAIT_FLAG){
   stopMotors();
   ledsAll(COL_BLUE);
 
-if(checkFlagStart()){
-  raceStarted = true;
-  enterState(START_FORWARD);
-}
+  lastSonarPingMs = 0;   
+
+  int ok = 0;
+  for(int i = 0; i < 5; i++){
+    if(checkFlagStart()) ok++;
+  }
+
+  if(ok >= 3){
+    raceStarted = true;
+    enterState(START_FORWARD);
+  }
   return;
 }
 
