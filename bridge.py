@@ -3,8 +3,8 @@ import requests
 import time
 
 # --- CONFIG ---
-ARDUINO_PORT = "/dev/tty.usbmodem48CA435A9B082" # Your local port
-RENDER_URL = "https://your-app-name.onrender.com/update" # Replace with your URL
+ARDUINO_PORT = "/dev/tty.usbmodem48CA435A9B082"
+RENDER_URL = "https://whiskas-website.onrender.com/"
 BAUD_RATE = 9600
 
 # Your hard-earned mapping logic
