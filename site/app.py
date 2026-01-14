@@ -8,18 +8,15 @@ ON_RENDER = os.environ.get("RENDER") == "true"
 
 app = Flask(__name__)
 
-# --- CHANGE THIS to your Arduino port ---
 ARDUINO_PORT = "/dev/tty.usbmodem48CA435A9B082"
 BAUD_RATE = 9600
 
-# --- Robot state ---
 bot_state = {
     "POS":    {"left_wheel": None, "right_wheel": None, "distance": None, "gripper": None, "linestate": None, "time": None},
     "Wall-E": {"left_wheel": None, "right_wheel": None, "distance": None, "gripper": None, "linestate": None, "time": None},
     "Dazey":  {"left_wheel": None, "right_wheel": None, "distance": None, "gripper": None, "linestate": None, "time": None}
 }
 
-# --- Header mapping from Arduino defines ---
 HEADER_MAP = {
     0b00100001: ("Dazey", "left_wheel"),
     0b00100010: ("Dazey", "right_wheel"),
@@ -45,7 +42,7 @@ HEADER_MAP = {
 
 HEADERS = set(HEADER_MAP.keys())
 
-# --- Serial setup ---
+# Serial setup
 ser = None
 arduino_connected = False
 
@@ -56,7 +53,7 @@ try:
 except:
     print("Arduino not connected — dashboard will run with empty data")
 
-# --- Background update loop ---
+# Background update loop
 def update_loop():
     while True:
         now = time.strftime("%H:%M:%S")
@@ -85,7 +82,7 @@ def update_loop():
 
 threading.Thread(target=update_loop, daemon=True).start()
 
-# --- Flask routes ---
+# Flask routes
 @app.route("/")
 def index():
     return render_template("index.html")
