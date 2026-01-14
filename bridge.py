@@ -22,9 +22,9 @@ HEADER_MAP = {
 
 try:
     ser = serial.Serial(ARDUINO_PORT, BAUD_RATE, timeout=0.05)
-    print("✅ Connected to Arduino. Forwarding to Render...")
+    print("Connected to Arduino. Forwarding to Render...")
 except:
-    print("❌ Could not find Arduino locally.")
+    print("Could not find Arduino locally.")
     exit()
 
 while True:
@@ -38,5 +38,5 @@ while True:
                 requests.post(RENDER_URL, json={"bot": bot, "key": key, "val": val})
                 print(f"Sent: {bot} {key}={val}")
             except:
-                print("⚠️ Cloud offline")
+                print("Cloud offline")
     time.sleep(0.05)
