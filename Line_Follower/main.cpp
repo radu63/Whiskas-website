@@ -37,11 +37,6 @@ uint32_t COL_WHITE;
 const int gripperPin = 12;
 Servo gripper;
 
-// flag detection
-const int FLAG_MIN_CM = 5;
-const int FLAG_MAX_CM = 20;
-
-
 
 // motor pins
 const int motorL_fwd = 3;
@@ -72,6 +67,8 @@ int sensorValues[sensorCount];
 const int BLACK = 850; // decrease for more sensitivity
 
 enum LineState { LINE_NONE, LINE_LEFT, LINE_RIGHT, LINE_CENTER, LINE_T, LINE_END }; //define line states with names
+
+
 
 // timings (ms)
 unsigned long startBlindMs        = 850;
@@ -122,6 +119,11 @@ int markerStableMs   = 80;  // 80ms delay to consider marker stable before drop
 
 unsigned long dropMinMs     = 2000; //first drop cannot be while blind
 unsigned long nonBlackArmMs = 200; //200ms so crossing small gaps doesn't arm drop
+
+// flag detection
+const int FLAG_MIN_CM = 5;
+const int FLAG_MAX_CM = 20;
+
 
 // sonar avoid
 int obstacleCm = 20; //distance to trigger obstacle avoidance
