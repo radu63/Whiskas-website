@@ -73,9 +73,9 @@ arduino_connected = False
 try:
     ser = serial.Serial(ARDUINO_PORT, BAUD_RATE, timeout=0.05)
     arduino_connected = True
-    print("✅ Arduino connected")
+    print("Arduino connected")
 except:
-    print("⚠️ Arduino not connected — dashboard will run with empty data")
+    print("Arduino not connected — dashboard will run with empty data")
 
 # --- Background update loop ---
 def update_loop():
