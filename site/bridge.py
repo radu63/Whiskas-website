@@ -7,7 +7,6 @@ ARDUINO_PORT = "/dev/tty.usbmodem48CA435A9B082"
 RENDER_URL = "https://your-app-name.onrender.com/update"
 BAUD_RATE = 9600
 
-# Your hard-earned mapping logic
 HEADER_MAP = {
     0b00100001: ("Dazey", "left_wheel"), 0b00100010: ("Dazey", "right_wheel"),
     0b00100011: ("Dazey", "gripper"), 0b00100100: ("Dazey", "linestate"),
