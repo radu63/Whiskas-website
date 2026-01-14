@@ -4,7 +4,7 @@ import time
 
 # --- CONFIG ---
 ARDUINO_PORT = "/dev/tty.usbmodem48CA435A9B082"
-RENDER_URL = "https://your-app-name.onrender.com/update"
+RENDER_URL = "https://whiskas-website.onrender.com/"
 BAUD_RATE = 9600
 
 HEADER_MAP = {
