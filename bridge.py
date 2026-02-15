@@ -1,13 +1,10 @@
-import serial
 import requests
 import time
 
-# --- CONFIG ---
-ARDUINO_PORT = "/dev/tty.usbmodem48CA435A9B082"
-RENDER_URL = "https://whiskas-website.onrender.com/"
-BAUD_RATE = 9600
+# CONFIG
+RENDER_URL = "https://whiskas-website.onrender.com/update"
 
-# Your hard-earned mapping logic
+# Mapping stays untouched
 HEADER_MAP = {
     0b00100001: ("Dazey", "left_wheel"), 0b00100010: ("Dazey", "right_wheel"),
     0b00100011: ("Dazey", "gripper"), 0b00100100: ("Dazey", "linestate"),
@@ -20,23 +17,80 @@ HEADER_MAP = {
     0b01000101: ("Wall-E", "distance"), 0b01001111: ("Wall-E", "done"),
 }
 
-try:
-    ser = serial.Serial(ARDUINO_PORT, BAUD_RATE, timeout=0.05)
-    print("Connected to Arduino. Forwarding to Render...")
-except:
-    print("Could not find Arduino locally.")
-    exit()
+# Simple send helper
+def send(bot, key, val):
+    try:
+        requests.post(RENDER_URL, json={
+            "bot": bot,
+            "key": key,
+            "val": val
+        })
+        print(f"Sent: {bot} {key}={val}")
+    except:
+        print("Cloud offline")
 
+
+# SIMULATION
+
+def simulate_pos():
+    send("POS", "linestate", 0)  # flag blocking
+    time.sleep(2)
+
+    send("POS", "linestate", 1)  # blind drive
+    time.sleep(2)
+
+    send("POS", "linestate", 2)  # line detected
+    time.sleep(1)
+
+    start = time.time()
+    toggle = True
+
+    while time.time() - start < 4:
+        if toggle:
+            send("POS", "left_wheel", 1)
+            send("POS", "right_wheel", 0)
+        else:
+            send("POS", "left_wheel", 1)
+            send("POS", "right_wheel", 1)
+
+        toggle = not toggle
+        time.sleep(0.2)
+
+    send("POS", "distance", 1)  # obstacle
+    time.sleep(2)
+
+    send("POS", "gripper", 1)  # square placed
+    time.sleep(1)
+
+    send("POS", "done", 1)
+    time.sleep(2)
+
+
+def simulate_walle():
+    send("Wall-E", "linestate", 1)
+    time.sleep(2)
+
+    send("Wall-E", "gripper", 1)
+    time.sleep(1)
+
+    send("Wall-E", "done", 1)
+    time.sleep(2)
+
+
+def simulate_dazey():
+    send("Dazey", "linestate", 1)
+    time.sleep(2)
+
+    send("Dazey", "gripper", 1)
+    time.sleep(1)
+
+    send("Dazey", "done", 1)
+    time.sleep(2)
+
+
+# --- MAIN ---
 while True:
-    if ser.in_waiting >= 2:
-        packet = ser.read(2)
-        val, head = packet[0], packet[1]
-        
-        if head in HEADER_MAP:
-            bot, key = HEADER_MAP[head]
-            try:
-                requests.post(RENDER_URL, json={"bot": bot, "key": key, "val": val})
-                print(f"Sent: {bot} {key}={val}")
-            except:
-                print("Cloud offline")
-    time.sleep(0.05)
+    simulate_pos()
+    simulate_walle()
+    simulate_dazey()
+    break
