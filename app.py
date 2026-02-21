@@ -85,108 +85,97 @@ def update_loop():
 
 
 def simulate_sequence():
-while True:
+    while True:
 
-    def wait():
+        def wait():
+            time.sleep(3)
+
+        # POS
+        bot = "POS"
+
+        bot_state[bot]["left_wheel"] = 100
+        bot_state[bot]["right_wheel"] = 100
+        wait()
+
+        bot_state[bot]["gripper"] = 1
+        wait()
+
+        bot_state[bot]["gripper"] = 0
+        wait()
+
+        bot_state[bot]["left_wheel"] = -100
+        bot_state[bot]["right_wheel"] = 0
+        wait()
+
+        bot_state[bot]["left_wheel"] = 100
+        bot_state[bot]["right_wheel"] = 100
+        wait()
+
+        bot_state[bot]["left_wheel"] = 100
+        bot_state[bot]["right_wheel"] = 80
+        wait()
+
+        bot_state[bot]["left_wheel"] = 80
+        bot_state[bot]["right_wheel"] = 100
+        wait()
+
+        bot_state[bot]["left_wheel"] = 100
+        bot_state[bot]["right_wheel"] = 80
+        wait()
+
+        bot_state[bot]["gripper"] = 1
+        wait()
+
+        bot_state[bot]["left_wheel"] = -100
+        bot_state[bot]["right_wheel"] = -100
+        time.sleep(2)
+
+        # Wall-E
+        bot = "Wall-E"
+
+        bot_state[bot]["left_wheel"] = 100
+        bot_state[bot]["right_wheel"] = 100
+        wait()
+
+        bot_state[bot]["gripper"] = 1
+        wait()
+
+        bot_state[bot]["gripper"] = 0
+        wait()
+
+        bot_state[bot]["left_wheel"] = 80
+        bot_state[bot]["right_wheel"] = 100
+        wait()
+
+        bot_state[bot]["left_wheel"] = 100
+        bot_state[bot]["right_wheel"] = 80
+        wait()
+
+        bot_state[bot]["left_wheel"] = -100
+        bot_state[bot]["right_wheel"] = -100
+        time.sleep(2)
+
+        #Dazey
+        bot = "Dazey"
+
+        bot_state[bot]["left_wheel"] = 100
+        bot_state[bot]["right_wheel"] = 100
+        wait()
+
+        bot_state[bot]["gripper"] = 1
+        wait()
+
+        bot_state[bot]["left_wheel"] = 80
+        bot_state[bot]["right_wheel"] = 100
+        wait()
+
+        bot_state[bot]["left_wheel"] = 100
+        bot_state[bot]["right_wheel"] = 80
+        wait()
+
+        bot_state[bot]["left_wheel"] = -100
+        bot_state[bot]["right_wheel"] = -100
         time.sleep(3)
-
-    #POS
-    bot = "POS"
-
-    # forward
-    bot_state[bot]["left_wheel"] = 100
-    bot_state[bot]["right_wheel"] = 100
-    wait()
-
-    # open gripper
-    bot_state[bot]["gripper"] = 1
-    wait()
-
-    # close gripper
-    bot_state[bot]["gripper"] = 0
-    wait()
-
-    # turn left (left backward, right stop)
-    bot_state[bot]["left_wheel"] = -100
-    bot_state[bot]["right_wheel"] = 0
-    wait()
-
-    # forward
-    bot_state[bot]["left_wheel"] = 100
-    bot_state[bot]["right_wheel"] = 100
-    wait()
-
-    # curve right
-    bot_state[bot]["left_wheel"] = 100
-    bot_state[bot]["right_wheel"] = 80
-    wait()
-
-    # curve left
-    bot_state[bot]["left_wheel"] = 80
-    bot_state[bot]["right_wheel"] = 100
-    wait()
-
-    # curve right again
-    bot_state[bot]["left_wheel"] = 100
-    bot_state[bot]["right_wheel"] = 80
-    wait()
-
-    # open gripper
-    bot_state[bot]["gripper"] = 1
-    wait()
-
-    # reverse
-    bot_state[bot]["left_wheel"] = -100
-    bot_state[bot]["right_wheel"] = -100
-    time.sleep(2)
-
-
-    # Wall-E
-    bot = "Wall-E"
-
-    bot_state[bot]["left_wheel"] = 100
-    bot_state[bot]["right_wheel"] = 100
-    wait()
-
-    bot_state[bot]["gripper"] = 1
-    wait()
-
-    bot_state[bot]["gripper"] = 0
-    wait()
-
-    bot_state[bot]["left_wheel"] = 80
-    bot_state[bot]["right_wheel"] = 100
-    wait()
-
-    bot_state[bot]["left_wheel"] = 100
-    bot_state[bot]["right_wheel"] = 80
-    wait()
-
-    bot_state[bot]["left_wheel"] = -100
-    bot_state[bot]["right_wheel"] = -100
-    time.sleep(2)
-
-
-    #Dazey
-    bot = "Dazey"
-
-    bot_state[bot]["left_wheel"] = 100
-    bot_state[bot]["right_wheel"] = 100
-    wait()
-
-    bot_state[bot]["gripper"] = 1
-    wait()
-
-    bot_state[bot]["left_wheel"] = 80
-    bot_state[bot]["right_wheel"] = 100
-    wait()
-
-    bot_state[bot]["left_wheel"] = 100
-    bot_state[bot]["right_wheel"] = 80
-    wait()
-
-    bot_state[bot]["left_wheel"] = -100
-    bot_state[bot]["right_wheel"] = -100
 
 
 threading.Thread(target=simulate_sequence, daemon=True).start()
