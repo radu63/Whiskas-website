@@ -4,7 +4,7 @@ import time
 import serial
 import os
 
-ON_RENDER = os.environ.get("RENDER") == "true"
+ON_RENDER = os.environ.get("PORT") is not None
 
 app = Flask(__name__)
 
@@ -97,4 +97,5 @@ def status():
     })
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
