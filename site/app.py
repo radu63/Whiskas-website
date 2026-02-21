@@ -46,12 +46,13 @@ HEADERS = set(HEADER_MAP.keys())
 ser = None
 arduino_connected = False
 
-try:
-    ser = serial.Serial(ARDUINO_PORT, BAUD_RATE, timeout=0.05)
-    arduino_connected = True
-    print("Arduino connected")
-except:
-    print("Arduino not connected — dashboard will run with empty data")
+if not ON_RENDER:
+    try:
+        ser = serial.Serial(ARDUINO_PORT, BAUD_RATE, timeout=0.05)
+        arduino_connected = True
+        print("Arduino connected")
+    except:
+        print("Arduino not connected")
 
 # Background update loop
 def update_loop():
