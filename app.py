@@ -85,6 +85,7 @@ def update_loop():
 
 
 def simulate_sequence():
+while True:
 
     def wait():
         time.sleep(3)
@@ -188,7 +189,7 @@ def simulate_sequence():
     bot_state[bot]["right_wheel"] = -100
 
 
-threading.Thread(target=update_loop, daemon=True).start()
+threading.Thread(target=simulate_sequence, daemon=True).start()
 
 # Flask routes
 @app.route("/")
