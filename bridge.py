@@ -2,9 +2,9 @@ import serial
 import requests
 import time
 
-PORT = "COM5"   # anpassen
+PORT = "COM6"   # anpassen
 BAUD = 9600
-SERVER = "https://whiskas-website.onrender.com/update"
+SERVER = "https://whiskas-website-yhh7.onrender.com/update"
 
 HEADER_MAP = {
 
