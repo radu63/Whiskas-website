@@ -2,8 +2,6 @@ from flask import Flask, render_template, jsonify, request
 import time
 import threading
 
-arduino_connected = False
-
 app = Flask(__name__)
 
 bot_state = {
@@ -29,6 +27,8 @@ bot_state = {
         "time": ""
     }
 }
+
+arduino_connected = False
 
 HEADER_MAP = {
 
