@@ -4,7 +4,7 @@ import time
 
 PORT = "COM5"   # anpassen
 BAUD = 9600
-SERVER = "http://127.0.0.1:8000/update"
+SERVER = "https://whiskas-website.onrender.com/update"
 
 HEADER_MAP = {
 
