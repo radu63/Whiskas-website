@@ -2,7 +2,33 @@ from flask import Flask, render_template, jsonify, request
 import time
 import threading
 
+arduino_connected = False
+
 app = Flask(__name__)
+
+bot_state = {
+    "POS": {
+        "left_wheel": 0,
+        "right_wheel": 0,
+        "distance": 0,
+        "gripper": 0,
+        "time": ""
+    },
+    "Wall-E": {
+        "left_wheel": 0,
+        "right_wheel": 0,
+        "distance": 0,
+        "gripper": 0,
+        "time": ""
+    },
+    "Dazey": {
+        "left_wheel": 0,
+        "right_wheel": 0,
+        "distance": 0,
+        "gripper": 0,
+        "time": ""
+    }
+}
 
 HEADER_MAP = {
 
@@ -31,17 +57,24 @@ def index():
 
 @app.route("/update", methods=["POST"])
 def update():
+    global arduino_connected
+
     data = request.json
     bot = data["bot"]
     key = data["key"]
     val = data["val"]
 
     bot_state[bot][key] = val
+    arduino_connected = True
+
     return "OK"
 
 @app.route("/status")
 def status():
-    return jsonify(bot_state)
+    return jsonify({
+    "connected": arduino_connected,
+    "robots": bot_state
+})
 
 def update_time():
     while True:
@@ -53,4 +86,6 @@ def update_time():
 threading.Thread(target=update_time, daemon=True).start()
 
 if __name__ == "__main__":
-    app.run(port=8000)
+    import os
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
