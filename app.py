@@ -75,14 +75,15 @@ def update():
 
 @app.route("/status")
 def status():
-    global arduino_connected
+
+    connected = False
 
     if last_update_time != 0:
-        if time.time() - last_update_time > 3:
-            arduino_connected = False
+        if time.time() - last_update_time <= 3:
+            connected = True
 
     return jsonify({
-        "connected": arduino_connected,
+        "connected": connected,
         "robots": bot_state
     })
 
