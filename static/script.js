@@ -24,15 +24,14 @@ async function updateDashboard() {
 setInterval(updateDashboard, 1000);
 updateDashboard();
 
-document.getElementById("show-image-btn").addEventListener("click", () => {
-    const container = document.getElementById("image-container");
+document.getElementById("show-video-btn").addEventListener("click", function () {
 
-    // If image already exists, do nothing
-    if (!container.querySelector("img")) {
-        const img = document.createElement("img");
-        img.src = "/static/image.png"; // path to your image
-        img.alt = "Displayed Image";
-        img.style.maxWidth = "100%";    // responsive width
-        container.appendChild(img);
+    const video = document.getElementById("video-container");
+
+    if (video.style.display === "none") {
+        video.style.display = "block";
+    } else {
+        video.style.display = "none";
     }
+
 });

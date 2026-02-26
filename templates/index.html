@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>RelayBot Dashboard</title>
+    <title>RelayBot Dashboard Whiskas</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -40,8 +40,19 @@
     Arduino not connected
     </p>
 
-    <button id="show-image-btn">Dazey made it to her wedding!</button>
-    <div id="image-container" style="margin-top: 10px;"></div>
+<button id="show-video-btn">Dazey made it to her wedding!</button>
+
+<div id="video-container" style="margin-top: 10px; display: none;">
+    <iframe
+        width="560" 
+        height="315" 
+        src="https://www.youtube.com/embed/NNKGOXUJ734?si=OBhQNQPATn571ZKn" 
+        title="YouTube video player" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
+    </iframe>
+</div>
 
     <script src="/static/script.js"></script>
 </body>

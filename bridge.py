@@ -40,13 +40,14 @@ while True:
 
             try:
                 response = requests.post(
-                    SERVER,
-                    json={
-                        "bot": bot,
-                        "key": key,
-                        "val": value
-                    }
-                )
+                SERVER,
+                json={
+                "bot": bot,
+                "key": key,
+                "val": value,
+                "api_key": "NHL.Bot123"
+            }
+        )
 
                 print(bot, key, value)
                 print("HTTP:", response.status_code)
