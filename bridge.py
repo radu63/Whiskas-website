@@ -27,6 +27,8 @@ HEADER_MAP = {
     37:  ("Dazey", "distance"),
 }
 
+
+
 ser = serial.Serial(PORT, BAUD, timeout=0.1)
 
 print("Connected to", PORT)
@@ -34,7 +36,7 @@ print("Bridge running...")
 
 while True:
     print("in_waiting:", ser.in_waiting)
-    
+
     if ser.in_waiting >= 2:
         header = ser.read(1)[0]
         value = ser.read(1)[0]
@@ -43,13 +45,15 @@ while True:
             bot, key = HEADER_MAP[header]
 
             try:
-                requests.post(SERVER, json={
-                    "bot": bot,
-                    "key": key,
-                    "val": value
+                response = requests.post(SERVER, json={
+                "bot": bot,
+                "key": key,
+                "val": value
                 })
-                print(bot, key, value)
+
+                print("Server status:", response.status_code)
             except:
                 print("Server not reachable")
 
     time.sleep(0.05)
+    

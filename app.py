@@ -28,6 +28,8 @@ bot_state = {
     }
 }
 
+last_update_time = 0
+
 arduino_connected = False
 
 HEADER_MAP = {
@@ -58,6 +60,7 @@ def index():
 @app.route("/update", methods=["POST"])
 def update():
     global arduino_connected
+    global last_update_time
 
     data = request.json
     bot = data["bot"]
@@ -66,15 +69,22 @@ def update():
 
     bot_state[bot][key] = val
     arduino_connected = True
+    last_update_time = time.time()
 
     return "OK"
 
 @app.route("/status")
 def status():
+    global arduino_connected
+
+    # wenn länger als 3 Sekunden keine Daten → disconnected
+    if time.time() - last_update_time > 3:
+        arduino_connected = False
+
     return jsonify({
-    "connected": arduino_connected,
-    "robots": bot_state
-})
+        "connected": arduino_connected,
+        "robots": bot_state
+    })
 
 def update_time():
     while True:
