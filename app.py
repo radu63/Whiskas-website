@@ -4,6 +4,8 @@ import threading
 
 app = Flask(__name__)
 
+API_KEY = "NHL.Bot123"
+
 bot_state = {
     "POS": {
         "left_wheel": 0,
@@ -59,16 +61,19 @@ def index():
 
 @app.route("/update", methods=["POST"])
 def update():
-    global arduino_connected
     global last_update_time
 
     data = request.json
+
+    #
+    if data.get("api_key") != API_KEY:
+        return "Unauthorized", 401
+
     bot = data["bot"]
     key = data["key"]
     val = data["val"]
 
     bot_state[bot][key] = val
-    arduino_connected = True
     last_update_time = time.time()
 
     return "OK"
