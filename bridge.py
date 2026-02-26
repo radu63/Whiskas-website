@@ -29,9 +29,12 @@ HEADER_MAP = {
 
 ser = serial.Serial(PORT, BAUD, timeout=0.1)
 
+print("Connected to", PORT)
 print("Bridge running...")
 
 while True:
+    print("in_waiting:", ser.in_waiting)
+    
     if ser.in_waiting >= 2:
         header = ser.read(1)[0]
         value = ser.read(1)[0]
