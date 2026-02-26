@@ -77,9 +77,9 @@ def update():
 def status():
     global arduino_connected
 
-    # wenn länger als 3 Sekunden keine Daten → disconnected
-    if time.time() - last_update_time > 3:
-        arduino_connected = False
+    if last_update_time != 0:
+        if time.time() - last_update_time > 3:
+            arduino_connected = False
 
     return jsonify({
         "connected": arduino_connected,
